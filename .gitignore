@@ -1,0 +1,9 @@
+# Your household config (IPTV login). Never commit it.
+local/
+# Build output and local tooling
+build/
+.venv/
+.tv-token
+__pycache__/
+*.log
+.DS_Store

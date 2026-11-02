@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Install help
+    url: https://github.com/opencream-ai/opencream-tv/discussions
+    about: Questions about installing, Developer Mode or certificates. Include your TV model and the exact error text.
+  - name: Install guide
+    url: https://opencream.tv/install
+    about: The step-by-step guide with fixes for common errors.

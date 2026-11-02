@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in opencream TV does not work as it should
+title: "Bug: <short description>"
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do **not** include your IPTV provider's name, server addresses,
+        usernames or passwords. They are not needed and this page is public.
+        Install problems? Ask in [Discussions](https://github.com/opencream-ai/opencream-tv/discussions) first.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead. Include the exact text of any message.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Remote buttons in order, for example "Home, Live TV, OK, Down, Down, OK".
+      placeholder: |
+        1.
+        2.
+        3.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      options: [Home screen, Live TV, Movies, Series, Search, Settings, Player, Install, Other]
+    validations:
+      required: true
+  - type: dropdown
+    id: sample
+    attributes:
+      label: Does it also happen with "Try with sample channels"?
+      options: ["Yes", "No", "Did not try"]
+  - type: input
+    id: model
+    attributes:
+      label: TV model and year
+      description: Settings, Support, About This TV
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: opencream TV version
+      description: Settings, About opencream TV

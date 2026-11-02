@@ -1,0 +1,55 @@
+name: Compatibility report
+description: Tell us how opencream TV runs on your Samsung TV
+title: "Compatibility: <model> (<year>)"
+labels: [compatibility]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. Please do **not** include your IPTV provider's name, server addresses,
+        usernames or passwords. They are not needed and this page is public.
+  - type: input
+    id: model
+    attributes:
+      label: TV model
+      description: Settings, Support, About This TV (for example QN55QN90CAFXZA)
+    validations:
+      required: true
+  - type: input
+    id: year
+    attributes:
+      label: Model year
+    validations:
+      required: true
+  - type: input
+    id: tizen
+    attributes:
+      label: Tizen / software version, if shown
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options: [Apps2Samsung, Coding agent (AGENTS.md), Other]
+    validations:
+      required: true
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works?
+      options:
+        - label: Home screen and app tiles
+        - label: HDMI tiles
+        - label: Live TV plays
+        - label: Films and series play
+        - label: Search (including the program guide)
+        - label: Sound on all channels I tried
+  - type: textarea
+    id: problems
+    attributes:
+      label: What does not work?
+      description: What you did, what you expected, what happened. Audio format if sound is missing.
+  - type: input
+    id: version
+    attributes:
+      label: opencream TV version
+      description: Settings, About opencream TV
