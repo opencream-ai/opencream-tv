@@ -49,6 +49,12 @@
         var action = Platform.actionFor(e);
         if (!action || !top()) return;
         e.preventDefault();
+        // How long this key has been held (or pressed again and again): lists and seeking speed up with it.
+        // Timestamps, not e.repeat: Tizen does not set e.repeat reliably (03.11.2026).
+        var now = Date.now();
+        if (e.keyCode !== hold.code || now - hold.last > 600) { hold.code = e.keyCode; hold.start = now; }
+        hold.last = now;
+        action.heldMs = now - hold.start;
         var view = Views[top().name];
         // Views that use "hold OK" (e.g. favourite a channel) get OK on release, or okLong after 600 ms.
         // The Samsung remote has no colour buttons, so holding OK replaces Yellow (31.10.2026).
@@ -64,6 +70,7 @@
     });
 
     var okTimer = null, okLong = false;
+    var hold = { code: 0, start: 0, last: 0 };
     document.addEventListener('keyup', function (e) {
         if (e.keyCode !== 13 || !okTimer) return;
         clearTimeout(okTimer);

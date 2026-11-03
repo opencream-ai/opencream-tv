@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets"
-        id="https://opencream.tv/" version="0.1.0" viewmodes="maximized">
+        id="https://opencream.tv/" version="0.1.1" viewmodes="maximized">
     <!-- Changing the application id installs a separate app and loses the saved settings on the TV. -->
     <tizen:application id="OpnCrmTV01.opencreamtv" package="OpnCrmTV01" required_version="5.0"/>
     <content src="index.html"/>

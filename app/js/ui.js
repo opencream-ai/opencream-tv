@@ -68,6 +68,14 @@
 
     VList.prototype.current = function () { return this.items[this.index]; };
 
+    // Rows to move for one Up/Down while the key is held: one at first, then half a page, then a page.
+    function holdStep(heldMs, page) {
+        page = Math.max(1, page || 1);
+        if (!heldMs || heldMs < 800) return 1;
+        if (heldMs < 2000) return Math.max(1, Math.floor(page / 2));
+        return page;
+    }
+
     VList.prototype.setActive = function (on) {
         this.active = on;
         this.el.classList.toggle('active', on);
@@ -168,6 +176,7 @@
         duration: duration,
         toast: toast,
         VList: VList,
+        holdStep: holdStep,
         VGrid: VGrid
     };
 })();

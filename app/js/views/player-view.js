@@ -86,10 +86,26 @@
     }
 
     // Repeated presses add up; the jump happens once the presses stop.
-    function nudge(deltaMs) {
+    // Holding the key (or pressing it again and again) makes the steps bigger the longer it goes on,
+    // so a whole film can be crossed in a few seconds (03.11.2026).
+    var LADDER = [[1500, 10000], [3000, 30000], [5000, 60000], [8000, 120000], [Infinity, 300000]];
+
+    function stepFor(heldMs, minMs) {
+        var step = minMs;
+        for (var i = 0; i < LADDER.length; i++) {
+            if (heldMs < LADDER[i][0]) { step = Math.max(minMs, LADDER[i][1]); break; }
+        }
+        // Short episodes: never more than a twentieth of the length per step.
+        var dur = Player.duration();
+        if (dur) step = Math.min(step, Math.max(minMs, Math.round(dur / 20 / 10000) * 10000));
+        return step;
+    }
+
+    function nudge(dir, minMs, heldMs) {
+        var step = stepFor(heldMs || 0, minMs);
         var base = seekTarget != null ? seekTarget : lastTime;
         var dur = Player.duration();
-        seekTarget = Math.max(0, dur ? Math.min(base + deltaMs, dur - 2000) : base + deltaMs);
+        seekTarget = Math.max(0, dur ? Math.min(base + dir * step, dur - 2000) : base + dir * step);
         showOsd();
         clearTimeout(seekTimer);
         seekTimer = setTimeout(function () {
@@ -424,10 +440,10 @@
                     Player.toggle();
                     showOsd(Player.isPaused());
                     break;
-                case 'left': nudge(-10000); break;
-                case 'right': nudge(10000); break;
-                case 'rw': nudge(-60000); break;
-                case 'ff': nudge(60000); break;
+                case 'left': nudge(-1, 10000, a.heldMs); break;
+                case 'right': nudge(1, 10000, a.heldMs); break;
+                case 'rw': nudge(-1, 60000, a.heldMs); break;
+                case 'ff': nudge(1, 60000, a.heldMs); break;
                 case 'chUp': if (!next()) UI.toast('Last episode'); break;
                 case 'down': openMenu(); break;
                 case 'up': case 'info': showOsd(); break;

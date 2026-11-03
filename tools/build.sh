@@ -41,6 +41,8 @@ fi
 # The package is named after <name> in config.xml.
 WGT=$(ls "$B"/*.wgt 2>/dev/null | head -1)
 [ -z "$WGT" ] && { echo "PACKAGING FAILED (is the security profile set up?)"; exit 1; }
+# "opencream TV.wgt": the space makes "tizen install" fail without a reason (03.11.2026).
+if [ "$(basename "$WGT")" != "opencream-tv.wgt" ]; then mv "$WGT" "$B/opencream-tv.wgt"; WGT="$B/opencream-tv.wgt"; fi
 if [ "$1" = "install" ]; then
   # Reconnect every time: after a TV restart the old developer connection is dead, and the
   # install used to fail silently (31.10.2026).

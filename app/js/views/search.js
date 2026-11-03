@@ -86,8 +86,11 @@
                 return true;
             }
             switch (a.type) {
-                case 'up': if (results.index === 0) setZone('input'); else results.move(-1); break;
-                case 'down': results.move(1); break;
+                case 'up':
+                    if (results.index === 0) { if (!a.heldMs) setZone('input'); }
+                    else results.move(-UI.holdStep(a.heldMs, 8));
+                    break;
+                case 'down': results.move(UI.holdStep(a.heldMs, 8)); break;
                 case 'chUp': results.move(-8); break;
                 case 'chDown': results.move(8); break;
                 case 'ok': if (results.current()) open(results.current()); break;
