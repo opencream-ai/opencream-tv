@@ -452,17 +452,3 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 .about .qr img { width: 168px; height: 168px; border-radius: 12px; background: #fff; }
 .about .qr-title { font-size: 26px; font-weight: 500; margin-bottom: 6px; }
 
-/* Recently watched (Back on the home screen). Reuses the Settings head/body type. */
-.recents { position: absolute; inset: 0; padding: 56px 120px 120px; background: rgba(12, 11, 10, 0.86); }
-.recents .rlist { margin-top: 18px; }
-.recents .rrow {
-    display: flex; align-items: center; gap: 20px; height: 72px; padding: 0 24px;
-    border: 1px solid transparent; border-bottom-color: var(--line); border-radius: 16px;
-}
-.recents .rrow.focus { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.38); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); }
-.recents .ricon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
-.recents .ricon svg { width: 32px; height: 32px; }
-.recents .rrow.focus .ricon { color: var(--text); }
-.recents .rtext { display: flex; flex-direction: column; gap: 2px; }
-.recents .rtitle { font-size: 26px; color: var(--text); }
-.recents .rsub { font-size: 19px; color: var(--muted); }

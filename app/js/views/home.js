@@ -39,8 +39,6 @@
 
     var focus = { zone: 'dock', i: 0 };
     var el, clockTimer, hdmi = {};
-    // Recently watched overlay (opened with Back on the home screen): null when closed.
-    var recents = null;
 
     function wallpaper() {
         var chosen = Store.get('wallpaper', -1);
@@ -99,46 +97,6 @@
         if (n) n.innerHTML = weatherHtml();
     }
 
-    // Recently watched: the last live channel, then films and episodes with a resume point.
-    function recentItems() {
-        var out = [];
-        var last = Store.get('lastLive', null);
-        if (last && last.streamId != null) {
-            out.push({ kind: 'live', title: last.name || 'Live TV', sub: 'Continue watching live',
-                play: { stream_id: last.streamId, category_id: last.group } });
-        }
-        Store.resumeList().forEach(function (r) {
-            if (r && r.params && r.title) {
-                out.push({ kind: 'vod', title: r.title, sub: r.sub || ('Resume from ' + UI.duration(r.pos)), params: r.params });
-            }
-        });
-        return out.slice(0, 10);
-    }
-
-    function openRecent(it) {
-        if (!it) return;
-        recents = null;
-        if (needsIptv()) return; // sends the user to Settings to connect first
-        if (it.kind === 'live') App.go('live', { play: it.play });
-        else App.go('player', it.params);
-    }
-
-    function renderRecents() {
-        var items = recents.items;
-        var rows = items.length
-            ? '<div class="rlist">' + items.map(function (it, i) {
-                var ic = it.kind === 'live' ? 'live' : 'movies';
-                return '<div class="rrow' + (i === recents.i ? ' focus' : '') + '">' +
-                    '<span class="ricon">' + Icons[ic] + '</span><span class="rtext">' +
-                    '<span class="rtitle">' + UI.esc(it.title) + '</span>' +
-                    (it.sub ? '<span class="rsub">' + UI.esc(it.sub) + '</span>' : '') + '</span></div>';
-            }).join('') + '</div>'
-            : '<p class="hint">Nothing yet. The films, episodes and live channel you watch show up here.</p>';
-        el.innerHTML = '<div class="recents"><header class="set-head"><h1>Recently watched</h1></header>' +
-            '<div class="set-body">' + rows + '<p class="hint">' +
-            (items.length ? 'OK resumes. ' : '') + 'Back closes.</p></div></div>';
-    }
-
     function startClock() {
         stopClock();
         clockTimer = setInterval(function () {
@@ -150,7 +108,6 @@
     function stopClock() { if (clockTimer) { clearInterval(clockTimer); clockTimer = null; } }
 
     function render() {
-        if (recents) { renderRecents(); return; }
         buildDock();
         // Background style: "photo" shows a landscape; "dark" is a plain dark field (lower backlight).
         var dark = Store.get('bgStyle', 'photo') === 'dark';
@@ -229,19 +186,10 @@
         },
         unmount: function () { stopClock(); Weather.onChange(function () {}); },
         // While another app is in front, stop the clock and weather timer (main.js also stops the
-        // player). Coming back shows the home screen, not any overlay that was open.
+        // player). Coming back shows the home screen.
         onHide: function () { stopClock(); },
-        onShow: function () { recents = null; render(); refreshHdmi(); startClock(); },
+        onShow: function () { render(); refreshHdmi(); startClock(); },
         onKey: function (a) {
-            if (recents) {
-                switch (a.type) {
-                    case 'up': if (recents.i > 0) { recents.i--; renderRecents(); } return true;
-                    case 'down': if (recents.i < recents.items.length - 1) { recents.i++; renderRecents(); } return true;
-                    case 'ok': openRecent(recents.items[recents.i]); return true;
-                    case 'back': recents = null; render(); return true;
-                    default: return true;
-                }
-            }
             var n = focus.zone === 'dock' ? DOCK.length : TOP.length;
             switch (a.type) {
                 case 'left': if (focus.i > 0) focus.i--; break;
@@ -252,7 +200,7 @@
                 case 'chUp': case 'chDown': case 'list':
                     if (!needsIptv()) App.go('live');
                     return true;
-                case 'back': recents = { items: recentItems(), i: 0 }; render(); return true; // Home is the bottom of the stack; Back shows recently watched.
+                case 'back': return true; // Home is the bottom of the stack.
                 default: return false;
             }
             paintFocus();
