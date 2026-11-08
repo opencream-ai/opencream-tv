@@ -51,7 +51,7 @@ body.video.html5 #html5video { display: block; }
 
 /* Calm colour field the glass panels sit on. Kept dark so the backlight stays low. */
 .wall {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none; background-color: #0e0d0c;
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 0; pointer-events: none; background-color: #0e0d0c;
     background-image:
         radial-gradient(900px 640px at 18% 22%, rgba(196, 140, 92, 0.30), transparent 70%),
         radial-gradient(1000px 760px at 82% 30%, rgba(86, 112, 150, 0.28), transparent 70%),
@@ -92,16 +92,16 @@ kbd.y { color: var(--yellow); }
 
 /* ---------- Home ---------- */
 
-.home { position: absolute; inset: 0; overflow: hidden; }
+.home { position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow: hidden; }
 /* Photograph, slightly dimmed: keeps the backlight (and the transformer) cooler. */
-.home .photo { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(0.82); }
+.home .photo { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-size: cover; background-position: center; filter: brightness(0.82); }
 /* Dark background style (no photo): a calm, very dark field; keeps the backlight low. */
 .home.dark-bg { background:
     radial-gradient(1100px 760px at 20% 15%, rgba(120, 110, 98, 0.10), transparent 70%),
     radial-gradient(1000px 720px at 85% 90%, rgba(86, 100, 120, 0.10), transparent 70%), #0e0d0c; }
 .home.dark-bg .clockrow { text-shadow: none; }
 .home .shade {
-    position: absolute; inset: 0;
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0) 22%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.38) 100%);
 }
 /* Clock + weather. Proportional figures: the app-wide tabular figures give Geist's digits
@@ -173,7 +173,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 
 /* ---------- Search ---------- */
 
-.search { position: absolute; inset: 0; }
+.search { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .sfield {
     position: absolute; left: 120px; right: 120px; top: 72px; height: 96px; border-radius: 999px;
     display: flex; align-items: center; gap: 22px; padding: 0 40px;
@@ -196,7 +196,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 
 /* ---------- PIN ---------- */
 
-.pin { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
+.pin { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
 .pinbox { border-radius: 40px; padding: 48px 72px; text-align: center; background: rgba(30, 29, 27, 0.7); }
 .ptitle2 { font-family: var(--serif); font-weight: 600; font-size: 44px; margin-bottom: 30px; }
 .pins { display: flex; gap: 20px; justify-content: center; }
@@ -224,7 +224,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 
 /* ---------- Live TV ---------- */
 
-.live { position: absolute; inset: 0; }
+.live { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .screen-live #app, .screen-live { background: transparent; }
 
 .osd {
@@ -293,7 +293,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 
 /* ---------- Movies & Series ---------- */
 
-.library { position: absolute; inset: 0; }
+.library { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .lib-head { position: absolute; left: 120px; top: 72px; display: flex; align-items: baseline; gap: 28px; }
 .lib-head h1 { font-family: var(--serif); font-weight: 600; font-size: 72px; line-height: 1; letter-spacing: -0.03em; }
 .lib-head .count { color: var(--muted); font-size: 22px; }
@@ -309,16 +309,16 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
     background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1);
     transition: transform 260ms var(--ease), box-shadow 260ms var(--ease);
 }
-.poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.poster img { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 .poster .fallback { position: absolute; left: 16px; right: 16px; bottom: 16px; font-family: var(--serif); font-weight: 600; font-size: 24px; line-height: 1.1; }
 .cap { font-size: 18px; color: var(--muted); margin-top: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cell.focus .poster { transform: scale(1.04); }
 .grid.active .cell.focus .poster { transform: scale(1.07); border-color: rgba(255, 255, 255, 0.6); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.45); }
 .grid.active .cell.focus .cap { color: var(--text); }
 
-.detail { position: absolute; inset: 0; background: #0e0d0c; visibility: hidden; }
+.detail { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: #0e0d0c; visibility: hidden; }
 .detail.show { visibility: visible; }
-.detail .backdrop { position: absolute; inset: 0; overflow: hidden; }
+.detail .backdrop { position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow: hidden; }
 .detail .backdrop img { width: 100%; height: 100%; object-fit: cover; opacity: 0.35; filter: blur(40px) saturate(140%); transform: scale(1.15); }
 .dposter { position: absolute; left: 120px; top: 140px; width: 360px; height: 540px; border-radius: 32px; overflow: hidden; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); }
 .dposter img { width: 100%; height: 100%; object-fit: cover; }
@@ -348,7 +348,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
    The video is on a separate plane under the page, so backdrop blur has nothing to blur here:
    panels over video use a dark translucent fill instead of glass blur. */
 
-.player { position: absolute; inset: 0; }
+.player { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .posd {
     position: absolute; left: 0; right: 0; bottom: 0; padding: 120px 96px 60px;
     background: linear-gradient(to top, rgba(8, 8, 7, 0.86) 0%, rgba(8, 8, 7, 0.6) 55%, rgba(8, 8, 7, 0) 100%);
@@ -414,7 +414,7 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 
 /* ---------- Settings ---------- */
 
-.settings { position: absolute; inset: 0; padding: 56px 120px 120px; overflow: hidden; }
+.settings { position: absolute; top: 0; right: 0; bottom: 0; left: 0; padding: 56px 120px 120px; overflow: hidden; }
 .set-head h1 { font-family: var(--serif); font-weight: 600; font-size: 64px; line-height: 1; letter-spacing: -0.03em; margin-bottom: 12px; }
 .set-body { width: 1100px; }
 .set-body h2 { margin: 18px 0 4px; }
@@ -452,3 +452,22 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 .about .qr img { width: 168px; height: 168px; border-radius: 12px; background: #fff; }
 .about .qr-title { font-size: 26px; font-weight: 500; margin-bottom: 6px; }
 
+
+/* ---------- Old TVs without flex gap (Chromium < 84, 2019-2020 sets) ----------
+   compat.js adds .no-flexgap to <html> when flex `gap` is unsupported. Same spacing via margins. */
+.no-flexgap .home .clockrow > * + * { margin-left: 32px; }
+.no-flexgap .home .weather > * + *, .no-flexgap .seasons > * + *, .no-flexgap .pbtn > * + *,
+.no-flexgap .popt > * + * { margin-left: 12px; }
+.no-flexgap .topbar > * + *, .no-flexgap .row > * + *, .no-flexgap .epg > * + *,
+.no-flexgap .srow .val > * + * { margin-left: 18px; }
+.no-flexgap .dock > * + *, .no-flexgap .pmenu > * + * { margin-left: 8px; }
+.no-flexgap .ditem > * + * { margin-top: 16px; }
+.no-flexgap .srow .lbl.app > * + *, .no-flexgap .dmeta > * + * { margin-left: 16px; }
+.no-flexgap .sfield > * + * { margin-left: 22px; }
+.no-flexgap .pins > * + *, .no-flexgap .buttons > * + * { margin-left: 20px; }
+.no-flexgap .osd > * + * { margin-left: 40px; }
+.no-flexgap .lib-head > * + * { margin-left: 28px; }
+.no-flexgap .phead > * + *, .no-flexgap .prow > * + *, .no-flexgap .about .qr > * + * { margin-left: 24px; }
+.no-flexgap .about .qrs > * + * { margin-left: 56px; }
+/* The guide preview wraps: title and bar sit on their own lines, where gap is a row gap. */
+.no-flexgap .guide .preview .epg > .title, .no-flexgap .guide .preview .epg > .bar { margin-left: 0; margin-top: 18px; }

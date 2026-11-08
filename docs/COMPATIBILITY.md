@@ -38,6 +38,21 @@ Verified on Tizen 8 (has AbortController, so the normal path runs): clean startu
 `liveCategories()` returned 759 via the refactored code. The no-AbortController branch can only be
 confirmed on a real 2019–2020 TV — part of the public beta.
 
+## Fix: CSS `inset` and flex `gap` (0.1.3, 08.11.2026)
+
+First report from a 2019 TV (UA55RU7100KXZN, Tizen 5.0, issue #1): setup worked, the last rows of
+the app picker were cut off, then the home screen stayed black. Cause: two CSS features newer than
+Chromium 63.
+
+| CSS | Needs | Effect on Chromium 63 | Fix |
+|---|---|---|---|
+| `inset: 0` | Chrome 87 | Full-screen layers (`.home`, `.settings`, `.live`...) get no size: black home screen, setup list not scrollable | Written out as `top/right/bottom/left: 0` |
+| flex `gap` | Chrome 84 | Spacing between items disappears | `compat.js` measures support once and adds `.no-flexgap` to `<html>`; margin rules at the end of `style.css` give the same spacing |
+
+Checked in desktop Chrome with `gap` forced off plus `.no-flexgap`: home, live guide and film
+detail are pixel-identical to the real `gap` layout. Still needs a confirmation on a real 2019 TV.
+When adding a new flex container with `gap`, add its `.no-flexgap` rule too.
+
 ## Still open for old TVs
 - Low-memory guide cap: `tizen.systeminfo.getTotalMemory()`; below ~2 GB keep ~12 h of guide.
 - 720p scaling for TVs that report 1280×720 (the `screen.size.normal.1080.1920` feature in

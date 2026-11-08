@@ -41,5 +41,21 @@
 
     if (!hasAbort && window.Log) Log.info('compat: no AbortController (old TV), using fallbacks');
 
+    // Flex `gap` needs Chromium 84; 2019-2020 sets ignore it. Measure it once and let the CSS fall
+    // back to margins (.no-flexgap rules at the end of style.css).
+    var hasFlexGap = (function () {
+        var box = document.createElement('div'), a = document.createElement('div'), b = document.createElement('div');
+        box.style.cssText = 'display:flex;flex-direction:column;gap:1px;position:absolute;visibility:hidden';
+        box.appendChild(a); box.appendChild(b);
+        (document.body || document.documentElement).appendChild(box);
+        var ok = box.scrollHeight === 1;
+        box.parentNode.removeChild(box);
+        return ok;
+    })();
+    if (!hasFlexGap) {
+        document.documentElement.className += ' no-flexgap';
+        if (window.Log) Log.info('compat: no flex gap (old TV), using margins');
+    }
+
     window.Net = { hasAbort: hasAbort, canceller: canceller, fetchTimeout: fetchTimeout };
 })();

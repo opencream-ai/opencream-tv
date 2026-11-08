@@ -16,6 +16,8 @@ packaging/apps2samsung.json   catalog entry for Apps2Samsung
 
 The code is plain ES5 (no arrow functions, let/const, async or template strings) so it runs on the
 Chromium 63 engine of 2019 Samsung TVs. Keep it that way.
+The same goes for CSS: no `inset` (write out top/right/bottom/left), and every flex `gap` needs a
+matching `.no-flexgap` margin rule at the end of `app/css/style.css` (see docs/COMPATIBILITY.md).
 
 ## Build
 
