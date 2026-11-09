@@ -96,6 +96,19 @@
 
     function remove(i) { var list = dock(); list.splice(i, 1); save(list); }
 
+    // A name typed in Settings replaces the TV's name on the dock (Reddit request 09.11.2026:
+    // "TizenBrewNextGeneration" was too long). An empty name brings the original back (origLabel).
+    function rename(i, name) {
+        var list = dock(), app = list[i];
+        if (!app) return '';
+        name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 24);
+        var orig = app.origLabel || app.label;
+        app.label = name || orig;
+        if (app.label === orig) delete app.origLabel; else app.origLabel = orig;
+        save(list);
+        return app.label;
+    }
+
     function move(i, step) {
         var list = dock(), j = i + step;
         if (j < 0 || j >= list.length) return i;
@@ -116,6 +129,7 @@
         dock: dock,
         add: add,
         remove: remove,
+        rename: rename,
         move: move,
         inDock: inDock,
         iconHtml: iconHtml,

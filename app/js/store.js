@@ -33,6 +33,37 @@
         return !had;
     }
 
+    // Favourite films and series (hold OK on a poster), newest first, in one list for both
+    // libraries. Each keeps just enough of the title to show its poster and open it.
+    var LIB_FIELDS = ['stream_id', 'series_id', 'name', 'stream_icon', 'cover', 'container_extension', 'tmdb'];
+
+    function libKey(kind, item) { return kind === 'movies' ? 'm' + item.stream_id : 's' + item.series_id; }
+
+    function libList() {
+        return get('libFavs', []).filter(function (f) { return f && f.key && f.item; });
+    }
+
+    function libFavourites(kind) {
+        return libList().filter(function (f) { return f.kind === kind; }).map(function (f) { return f.item; });
+    }
+
+    function isLibFavourite(kind, item) {
+        var key = libKey(kind, item);
+        return libList().some(function (f) { return f.key === key; });
+    }
+
+    function toggleLibFavourite(kind, item) {
+        var key = libKey(kind, item), had = isLibFavourite(kind, item);
+        var list = libList().filter(function (f) { return f.key !== key; });
+        if (!had) {
+            var small = {};
+            LIB_FIELDS.forEach(function (k) { if (item[k] != null) small[k] = item[k]; });
+            list.unshift({ key: key, kind: kind, item: small });
+        }
+        set('libFavs', list);
+        return !had;
+    }
+
     // One value from config.local.js: a list or a comma-separated string, taken literally (the
     // installers escape quotes and backslashes; no decoding, so a password with "%41" stays as is).
     // Placeholders the installer did not fill in (__OCTV_...) count as empty.
@@ -96,6 +127,9 @@
         favourites: favourites,
         isFavourite: isFavourite,
         toggleFavourite: toggleFavourite,
+        libFavourites: libFavourites,
+        isLibFavourite: isLibFavourite,
+        toggleLibFavourite: toggleLibFavourite,
         resumeList: resumeList,
         resumeAt: resumeAt,
         saveResume: saveResume

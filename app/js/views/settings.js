@@ -12,6 +12,8 @@
     var about = false;
     // Multi-choice list (Live TV countries, film/series languages): null when closed.
     var multi = null;
+    // One dock app's page (OK on it): rename it or take it off the dock. null when closed.
+    var edit = null;
     var ABOUT_LINKS = [
         { qr: 'img/qr/opencream.svg', title: 'Made by opencream.ai', sub: 'Scan to visit opencream.ai' }
         // { qr: 'img/qr/donate.svg', title: 'Buy me a coffee', sub: 'opencream TV is free. Support it here' },
@@ -28,7 +30,8 @@
             fieldRow('user', 'Username', 'text'),
             fieldRow('pass', 'Password', 'password'),
             { kind: 'button', key: 'connect', label: 'Connect' },
-            { kind: 'button', key: 'next', label: 'Switch to next server' }
+            { kind: 'button', key: 'next', label: 'Switch to next server' },
+            { kind: 'choice', key: 'iptvTiles', label: 'Live TV, Movies, Series', opts: [['shown', 'Shown'], ['hidden', 'Hidden']], def: 'shown' }
         ].concat(Apps.dock().map(function (a, i) {
             return { kind: 'dockapp', key: 'dock' + i, i: i, app: a };
         })).concat([
@@ -57,6 +60,46 @@
 
     function appLabel(a) {
         return '<span class="lbl app"><span class="sicon i-' + (a.icon || 'tvapp') + '">' + Apps.iconHtml(a) + '</span>' + UI.esc(a.label) + '</span>';
+    }
+
+    function renderEdit() {
+        var a = Apps.dock()[edit.i];
+        el.innerHTML = '<header class="set-head"><h1>' + UI.esc(a.label) + '</h1></header><div class="set-body">' +
+            '<p class="hint">OK on the name opens the keyboard. An empty name brings back ' + UI.esc(a.origLabel || a.label) + '. Back returns to Settings.</p>' +
+            '<label class="srow' + (edit.idx === 0 ? ' focus' : '') + '"><span class="lbl">Name on the dock</span>' +
+            '<input data-key="appname" type="text" value="' + UI.esc(a.label) + '" autocomplete="off" spellcheck="false"></label>' +
+            '<div class="srow sbtn' + (edit.idx === 1 ? ' focus' : '') + '"><span>Remove from dock</span></div></div>';
+        // Saved when the on-screen keyboard closes (the field's change event), like the weather town.
+        var f = el.querySelector('input[data-key="appname"]');
+        f.addEventListener('change', function () {
+            if (!edit) return;
+            UI.toast('Shown as ' + Apps.rename(edit.i, f.value));
+            renderEdit();
+        });
+    }
+
+    function editKey(a) {
+        switch (a.type) {
+            case 'up': edit.idx = 0; break;
+            case 'down': edit.idx = 1; break;
+            case 'ok':
+                if (edit.idx === 0) { el.querySelector('input[data-key="appname"]').focus(); return true; }
+                UI.toast(Apps.dock()[edit.i].label + ' removed from the dock');
+                Apps.remove(edit.i);
+                closeEdit();
+                return true;
+            case 'back': closeEdit(); return true;
+            default: return true;
+        }
+        renderEdit();
+        return true;
+    }
+
+    function closeEdit() {
+        edit = null;
+        build();
+        if (idx >= rows.length) idx = rows.length - 1;
+        render();
     }
 
     function renderPicker() {
@@ -213,12 +256,13 @@
     function render() {
         if (multi) { renderMulti(); return; }
         if (picker) { renderPicker(); return; }
+        if (edit) { renderEdit(); return; }
         if (about) { renderAbout(); return; }
         var c = Xtream.creds() || {};
         var html = '<header class="set-head"><h1>Settings</h1></header><div class="set-body">' +
             '<h2>IPTV service</h2><p class="hint">The Xtream Codes login from your IPTV provider. Several server addresses can be listed, separated by commas; the app moves to the next one when a server stops answering.</p>';
         rows.forEach(function (r, i) {
-            if (r.key === 'dock0' || (r.key === 'addApp' && !Apps.dock().length)) html += '<h2>Apps in the dock</h2><p class="hint">Left and right move an app along the dock. OK removes it.</p>';
+            if (r.key === 'iptvTiles') html += '<h2>Apps in the dock</h2><p class="hint">Left and right move an app along the dock. OK renames or removes it.</p>';
             if (r.key === 'input0' || (r.key === 'addInput' && !Inputs.list().length)) html += '<h2>Consoles and inputs</h2><p class="hint">HDMI devices on the dock. Left and right name the input; OK removes it.</p>';
             if (r.key === 'pickCountries') html += '<h2>What to show</h2><p class="hint">Only the countries and languages you pick are listed and searched. "Other languages and countries" shows everything your provider offers.</p>';
             if (r.key === 'bgStyle') html += '<h2>Appearance</h2>';
@@ -376,6 +420,7 @@
             picker = null;
             about = false;
             multi = null;
+            edit = null;
             render();
             Platform.hdmiStatus().then(function (s) { hdmi = s; render(); }).catch(function () { /* ports still selectable */ });
         },
@@ -384,6 +429,7 @@
             if (Pin.isOpen()) return Pin.onKey(a);
             if (multi) return multiKey(a);
             if (picker) return pickerKey(a);
+            if (edit) return editKey(a);
             if (about) {
                 if (a.type === 'back') { about = false; render(); }
                 return true;
@@ -409,13 +455,7 @@
                         return true;
                     }
                     if (r.key === 'connect') connect({ servers: Xtream.parseServers(value('server')), user: value('user'), pass: value('pass') });
-                    if (r.kind === 'dockapp') {
-                        Apps.remove(r.i);
-                        UI.toast(r.app.label + ' removed from the dock');
-                        build();
-                        if (idx >= rows.length) idx = rows.length - 1;
-                        render();
-                    }
+                    if (r.kind === 'dockapp') { edit = { i: r.i, idx: 0 }; render(); return true; }
                     if (r.key === 'addApp') { openPicker(); return true; }
                     if (r.kind === 'inputrow') {
                         Inputs.remove(r.i);

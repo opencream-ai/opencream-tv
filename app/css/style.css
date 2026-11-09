@@ -300,6 +300,13 @@ svg.line { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: 
 .library .cats { left: 100px; top: 200px; width: 360px; height: 840px; }
 .library .cats .row { height: 60px; font-size: 22px; color: var(--muted); }
 .library .cats.active .row, .library .cats .row.focus { color: var(--text); }
+.library .cats .cicon { flex: none; width: 24px; height: 24px; }
+.library .cats .cicon svg { width: 24px; height: 24px; }
+.lib-head .hints { color: var(--muted); font-size: 18px; }
+.lib-head .hints kbd { margin-left: 0; }
+.poster .star { position: absolute; top: 14px; right: 14px; z-index: 2; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--yellow); box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45); }
+.dbody h1 .fav { font-family: var(--mono); letter-spacing: 0; }
 
 
 .grid { position: absolute; left: 500px; top: 196px; width: 1420px; height: 884px; overflow: hidden; }

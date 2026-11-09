@@ -6,6 +6,9 @@
     window.Views = window.Views || {};
 
     var COLS = 6, COL_W = 236, ROW_H = 392;
+    // Two entries above the provider's categories: Search (opens the search screen) and, once a
+    // title is saved, Favourites (hold OK on a poster). Asked for on Reddit, 09.11.2026.
+    var SEARCH = 'search', FAV = 'fav';
 
     // One saved state per library so returning lands where you left off.
     var states = {};
@@ -23,6 +26,7 @@
     function cell(item) {
         var p = poster(item);
         return '<div class="poster">' + (p ? '<img src="' + UI.esc(p) + '" onerror="this.remove()">' : '') +
+            (Store.isLibFavourite(kind, item) ? '<span class="star"></span>' : '') +
             '<span class="fallback">' + UI.esc(Xtream.clean(item.name)) + '</span></div><div class="cap">' + UI.esc(Xtream.clean(item.name)) + '</div>';
     }
 
@@ -32,11 +36,40 @@
         grid.setActive(col === 'grid');
     }
 
+    // Search + (Favourites) + the provider's categories, keeping the selected one where it is.
+    function rebuildCats() {
+        var cur = st.cats[st.catIdx], curId = cur ? cur.id : null;
+        var favs = Store.libFavourites(kind).length ? [{ id: FAV, name: 'Favourites' }] : [];
+        st.cats = [{ id: SEARCH, name: 'Search' }].concat(favs, st.provCats);
+        st.catIdx = Math.min(1, st.cats.length - 1);
+        for (var i = 0; i < st.cats.length; i++) if (curId !== null && st.cats[i].id === curId) st.catIdx = i;
+    }
+
+    function catRow(c) {
+        return (c.id === SEARCH ? '<span class="cicon">' + Icons.search + '</span>' : c.id === FAV ? '<span class="star"></span>' : '') +
+            '<span class="name">' + UI.esc(c.name) + '</span>';
+    }
+
+    function toggleFav(item) {
+        var on = Store.toggleLibFavourite(kind, item);
+        UI.toast(on ? 'Added to Favourites' : 'Removed from Favourites');
+        var n = st.cats.length;
+        rebuildCats();
+        if (st.cats.length !== n) catList.set(st.cats, st.catIdx);
+        if (st.catId !== FAV) { grid.firstRow = -1; grid.render(); return; }
+        // Inside Favourites: show the list without it, or the first category once it is empty.
+        var c = st.cats[st.catIdx];
+        if (c && c.id === FAV) { loadItems(FAV, true); return; }
+        if (!st.detail) setCol('cats');
+        if (c && c.id !== SEARCH) loadItems(c.id);
+    }
+
     function loadItems(catId, keepIndex) {
         st.catId = catId;
         grid.set([]);
         el.querySelector('.count').textContent = '';
-        return api().items(catId).then(function (items) {
+        var load = catId === FAV ? Promise.resolve(Store.libFavourites(kind)) : api().items(catId);
+        return load.then(function (items) {
             if (st.catId !== catId) return;
             st.items = items;
             grid.set(items, keepIndex ? st.gridIdx : 0);
@@ -73,8 +106,9 @@
 
     function movieButtons(d) {
         var at = Store.resumeAt('m' + d.item.stream_id);
-        return at ? [{ label: 'Resume from ' + UI.duration(at), start: at }, { label: 'Play from start', start: 0 }]
-            : [{ label: 'Play', start: 0 }];
+        var fav = { label: Store.isLibFavourite(kind, d.item) ? 'Remove from Favourites' : 'Add to Favourites', fav: true };
+        return (at ? [{ label: 'Resume from ' + UI.duration(at), start: at }, { label: 'Play from start', start: 0 }]
+            : [{ label: 'Play', start: 0 }]).concat(fav);
     }
 
     function renderDetail() {
@@ -83,9 +117,10 @@
         var meta = [info.releasedate || info.releaseDate || info.year, info.genre, info.duration].filter(Boolean).map(function (s) {
             return String(s).slice(0, 40);
         });
+        var favTag = Store.isLibFavourite(kind, d.item) ? '<span class="fav">Favourite</span>' : '';
         var html = '<div class="backdrop">' + (poster(d.item) ? '<img src="' + UI.esc(poster(d.item)) + '" onerror="this.remove()">' : '') + '</div>' +
             '<div class="dposter">' + (poster(d.item) ? '<img src="' + UI.esc(poster(d.item)) + '" onerror="this.remove()">' : '') + '</div>' +
-            '<div class="dbody"><h1>' + UI.esc(Xtream.clean(d.item.name)) + '</h1>' +
+            '<div class="dbody"><h1>' + UI.esc(Xtream.clean(d.item.name)) + favTag + '</h1>' +
             '<div class="dmeta">' + meta.map(UI.esc).join('<span class="sep"></span>') + '</div>' +
             '<p class="plot">' + UI.esc(info.plot || info.description || '') + '</p>';
 
@@ -146,11 +181,17 @@
     function detailKey(a) {
         var d = st.detail;
         if (a.type === 'back') { closeDetail(); return true; }
+        // Hold OK anywhere on the detail page: favourite this film or series.
+        if (a.type === 'okLong') { toggleFav(d.item); if (st.detail) renderDetail(); return true; }
         if (kind === 'movies') {
             var btns = movieButtons(d);
             if (a.type === 'left' && d.btn > 0) d.btn--;
+            else if (a.type === 'ok' && btns[d.btn].fav) toggleFav(d.item);
             else if (a.type === 'right' && d.btn < btns.length - 1) d.btn++;
-            else if (a.type === 'ok' || a.type === 'play' || a.type === 'playPause') { playMovie(d.item, btns[d.btn].start); return true; }
+            else if (a.type === 'ok' || a.type === 'play' || a.type === 'playPause') {
+                playMovie(d.item, (btns[d.btn].fav ? btns[0] : btns[d.btn]).start);
+                return true;
+            }
             renderDetail();
             return true;
         }
@@ -176,33 +217,38 @@
 
     window.Views.library = {
         reset: function () { states = {}; },
+        longOk: true,
         mount: function (root, params, restoring) {
             kind = params.kind;
-            st = states[kind] = states[kind] || { cats: [], catIdx: 0, catId: null, items: [], gridIdx: 0, col: 'cats', detail: null };
+            st = states[kind] = states[kind] || { cats: [], provCats: null, catIdx: 0, catId: null, items: [], gridIdx: 0, col: 'cats', detail: null };
             el = document.createElement('div');
             el.className = 'library';
-            el.innerHTML = '<header class="lib-head"><h1>' + api().title + '</h1><span class="count"></span></header>' +
+            el.innerHTML = '<header class="lib-head"><h1>' + api().title + '</h1><span class="count"></span>' +
+                '<span class="hints"><kbd>Hold OK</kbd> favourite</span></header>' +
                 '<div class="col cats"></div><div class="grid"></div><div class="detail"></div>';
             root.appendChild(el);
             detailEl = el.querySelector('.detail');
             catList = new UI.VList(el.querySelector('.cats'), {
-                rowH: 60, renderRow: function (c) { return '<span class="name">' + UI.esc(c.name) + '</span>'; }
+                rowH: 60, renderRow: catRow
             });
             grid = new UI.VGrid(el.querySelector('.grid'), { cols: COLS, colW: COL_W, rowH: ROW_H, renderCell: cell });
 
-            var ready = st.cats.length ? Promise.resolve() : api().cats().then(function (list) {
+            var ready = st.provCats ? Promise.resolve() : api().cats().then(function (list) {
                 var kept = list.filter(function (c) { return Lang.keepCategory(c.category_name); });
                 // Categories without a language prefix ("Drama", "Family") count as "other" and the
                 // language filter can remove every one of them. An empty list used to crash this
                 // screen (sample channels, 02.11.2026): show everything except adult groups instead.
                 if (!kept.length) kept = list.filter(function (c) { return !Lang.isAdult(c.category_name) || Lang.showAdult(); });
-                st.cats = kept.map(function (c) { return { id: c.category_id, name: Xtream.clean(c.category_name) }; });
-                st.catIdx = 0;
+                st.provCats = kept.map(function (c) { return { id: c.category_id, name: Xtream.clean(c.category_name) }; });
+                st.cats = [];
             });
             ready.then(function () {
+                rebuildCats(); // favourites may have changed since the last visit
                 catList.set(st.cats, st.catIdx);
                 setCol(st.col);
+                // On the Search row (back from the search screen) the grid keeps the last category.
                 var cat = st.cats[st.catIdx];
+                if (cat && cat.id === SEARCH) cat = st.cats[1] && st.catId ? { id: st.catId } : st.cats[1];
                 if (!cat) { el.querySelector('.count').textContent = 'Your IPTV service lists no categories here'; return; }
                 return loadItems(cat.id, restoring || st.catId === cat.id);
             }).then(function () {
@@ -227,9 +273,11 @@
                         if (!catList.move(a.type === 'up' || a.type === 'chUp' ? -step : step)) return true;
                         st.catIdx = catList.index;
                         clearTimeout(catTimer);
-                        catTimer = setTimeout(function () { var c = catList.current(); if (c) loadItems(c.id); }, 350);
+                        catTimer = setTimeout(function () { var c = catList.current(); if (c && c.id !== SEARCH) loadItems(c.id); }, 350);
                         return true;
                     case 'right': case 'ok':
+                        var cur = catList.current();
+                        if (cur && cur.id === SEARCH) { if (a.type === 'ok') App.go('search'); return true; }
                         if (st.items.length) setCol('grid');
                         return true;
                     case 'back': App.back(); return true;
@@ -245,6 +293,7 @@
                 case 'chUp': grid.move(0, -page); break;
                 case 'chDown': grid.move(0, page); break;
                 case 'ok': case 'play': case 'playPause': if (grid.current()) openDetail(grid.current()); break;
+                case 'okLong': if (grid.current()) toggleFav(grid.current()); break;
                 case 'back': setCol('cats'); break;
             }
             st.gridIdx = grid.index;

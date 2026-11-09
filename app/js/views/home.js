@@ -17,17 +17,25 @@
     // Live TV, Movies, Series, then the apps chosen in Settings (Apps.dock()), then the consoles.
     var DOCK = [];
 
-    function buildDock() {
-        DOCK = [
+    // Settings can hide the three IPTV tiles, e.g. while the login is not there yet (09.11.2026).
+    function iptvTiles() {
+        if (Store.get('iptvTiles', 'shown') === 'hidden') return [];
+        return [
             { kind: 'live', label: 'Live TV', icon: 'live' },
             { kind: 'movies', label: 'Movies', icon: 'movies' },
             { kind: 'series', label: 'Series', icon: 'series' }
-        ].concat(Apps.dock().map(function (a) {
+        ];
+    }
+
+    function buildDock() {
+        DOCK = iptvTiles().concat(Apps.dock().map(function (a) {
             return { kind: 'app', label: a.label, icon: a.icon, iconPath: a.iconPath, id: a.id };
         })).concat(Inputs.list().map(function (p) {
             return { kind: 'hdmi', label: p.name, icon: p.icon || 'hdmi', port: p.port };
         }));
         if (focus.zone === 'dock' && focus.i >= DOCK.length) focus.i = DOCK.length - 1;
+        // Nothing left on the dock (tiles hidden, no apps, no inputs): focus the top row.
+        if (focus.zone === 'dock' && !DOCK.length) focus = { zone: 'top', i: TOP.length - 1 };
     }
 
     var TOP = [
@@ -122,7 +130,7 @@
             '<div class="caption"></div>' +
             '<div class="' + dockCls + '">' + DOCK.map(function (d, i) {
                 return '<div class="ditem' + (d.kind === 'hdmi' && hdmiOff(d) ? ' dim' : '') + '" data-z="dock" data-i="' + i + '">' +
-                    '<div class="dicon i-' + (d.icon || 'tvapp') + '">' + (d.kind === 'app' ? Apps.iconHtml(d) : Icons[d.icon]) + '</div><div class="dlabel">' + d.label + '</div></div>';
+                    '<div class="dicon i-' + (d.icon || 'tvapp') + '">' + (d.kind === 'app' ? Apps.iconHtml(d) : Icons[d.icon]) + '</div><div class="dlabel">' + UI.esc(d.label) + '</div></div>';
             }).join('') + '</div>';
         el.innerHTML = html;
         paintFocus();
@@ -195,7 +203,7 @@
                 case 'left': if (focus.i > 0) focus.i--; break;
                 case 'right': if (focus.i < n - 1) focus.i++; break;
                 case 'up': if (focus.zone === 'dock') focus = { zone: 'top', i: TOP.length - 1 }; break;
-                case 'down': if (focus.zone === 'top') focus = { zone: 'dock', i: 0 }; break;
+                case 'down': if (focus.zone === 'top' && DOCK.length) focus = { zone: 'dock', i: 0 }; break;
                 case 'ok': open(focus.zone === 'dock' ? DOCK[focus.i] : TOP[focus.i]); return true;
                 case 'chUp': case 'chDown': case 'list':
                     if (!needsIptv()) App.go('live');
