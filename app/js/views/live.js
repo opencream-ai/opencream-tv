@@ -267,8 +267,8 @@
         var list = guideCol === 'countries' ? countryList : guideCol === 'groups' ? groupList : chanList;
         var page = list.visibleRows() - 1;
         switch (a.type) {
-            case 'up': moveIn(list, -UI.holdStep(a.heldMs, page)); return true;
-            case 'down': moveIn(list, UI.holdStep(a.heldMs, page)); return true;
+            case 'up': moveIn(list, -UI.holdStep(a.pressMs, page)); return true;
+            case 'down': moveIn(list, UI.holdStep(a.pressMs, page)); return true;
             case 'chUp': moveIn(list, -page); return true;
             case 'chDown': moveIn(list, page); return true;
             case 'left':

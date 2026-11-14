@@ -55,6 +55,13 @@
         if (e.keyCode !== hold.code || now - hold.last > 600) { hold.code = e.keyCode; hold.start = now; }
         hold.last = now;
         action.heldMs = now - hold.start;
+        // pressMs only counts a key that is really held down: a release (keyup) starts it again.
+        // Lists use it, so tapping down 3-4 times quickly moves 3-4 rows, not half a page (14.11.2026).
+        // Seeking keeps heldMs, where tapping again and again is meant to speed up.
+        if (e.keyCode !== press.code || press.released || now - press.last > 600) { press.code = e.keyCode; press.start = now; }
+        press.released = false;
+        press.last = now;
+        action.pressMs = now - press.start;
         var view = Views[top().name];
         // Views that use "hold OK" (e.g. favourite a channel) get OK on release, or okLong after 600 ms.
         // The Samsung remote has no colour buttons, so holding OK replaces Yellow (31.10.2026).
@@ -71,7 +78,9 @@
 
     var okTimer = null, okLong = false;
     var hold = { code: 0, start: 0, last: 0 };
+    var press = { code: 0, start: 0, last: 0, released: false };
     document.addEventListener('keyup', function (e) {
+        if (e.keyCode === press.code) press.released = true;
         if (e.keyCode !== 13 || !okTimer) return;
         clearTimeout(okTimer);
         okTimer = null;

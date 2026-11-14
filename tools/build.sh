@@ -47,7 +47,7 @@ if [ "$1" = "install" ]; then
   # Reconnect every time: after a TV restart the old developer connection is dead, and the
   # install used to fail silently (31.10.2026).
   "$HOME/tizen-studio/tools/sdb" disconnect "$TVIP" >/dev/null 2>&1 || true
-  "$HOME/tizen-studio/tools/sdb" connect "$TVIP" >/dev/null
+  "$HOME/tizen-studio/tools/sdb" connect "$TVIP" | grep -q "connected to" || { echo "Cannot connect to the TV at $TVIP. In Developer Mode on the TV, the host IP must be this computer's IP ($(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null)); change it there and restart the TV."; exit 1; }
   OUT=$("$TIZEN" install -n "$(basename "$WGT")" -s "$TV" -- "$B" 2>&1) || true
   if ! echo "$OUT" | grep -q 'successfully installed'; then echo "$OUT" | tail -5; echo "INSTALL FAILED"; exit 1; fi
   echo "Tizen application is successfully installed."

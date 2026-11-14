@@ -269,7 +269,7 @@
                 switch (a.type) {
                     case 'up': case 'down': case 'chUp': case 'chDown':
                         var catPage = catList.visibleRows() - 1;
-                        var step = a.type === 'chUp' || a.type === 'chDown' ? catPage : UI.holdStep(a.heldMs, catPage);
+                        var step = a.type === 'chUp' || a.type === 'chDown' ? catPage : UI.holdStep(a.pressMs, catPage);
                         if (!catList.move(a.type === 'up' || a.type === 'chUp' ? -step : step)) return true;
                         st.catIdx = catList.index;
                         clearTimeout(catTimer);
@@ -288,8 +288,8 @@
             switch (a.type) {
                 case 'left': if (!grid.move(-1, 0)) setCol('cats'); break;
                 case 'right': grid.move(1, 0); break;
-                case 'up': grid.move(0, -UI.holdStep(a.heldMs, page)); break;
-                case 'down': grid.move(0, UI.holdStep(a.heldMs, page)); break;
+                case 'up': grid.move(0, -UI.holdStep(a.pressMs, page)); break;
+                case 'down': grid.move(0, UI.holdStep(a.pressMs, page)); break;
                 case 'chUp': grid.move(0, -page); break;
                 case 'chDown': grid.move(0, page); break;
                 case 'ok': case 'play': case 'playPause': if (grid.current()) openDetail(grid.current()); break;

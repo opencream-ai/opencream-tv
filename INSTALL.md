@@ -16,6 +16,12 @@ network, a free Samsung account, and your IPTV login (server address, username, 
       **123** button to show them).
    3. Switch **Developer mode** to **On** and enter your computer's IP address. Confirm.
    4. **Restart the TV**: hold the power button until the Samsung logo appears.
+
+   **Samsung Smart Monitor** (M5, M7, M8, Odyssey): the same code works, but most monitor remotes
+   have no number buttons. Open **Apps**, then type 1 2 3 4 5 with the number pad of the
+   **SmartThings** app's remote on your phone (tap **123**). Restart the monitor fully afterwards;
+   standby is not enough, unplug it if needed. Reported working on an M7 and an Odyssey G70B;
+   opencream TV itself has not been tested on a monitor yet.
 3. **Install Apps2Samsung** on the computer:
    https://github.com/PatrickSt1991/Samsung-Jellyfin-Installer (see its Releases page).
 4. Open Apps2Samsung. It finds the TV. When it asks, **sign in with your Samsung account**: this
@@ -29,7 +35,9 @@ network, a free Samsung account, and your IPTV login (server address, username, 
 - If you did not enter your login in the form, the app asks for it on first start. You can change
   it any time in **Settings**.
 - To start the TV in opencream TV: Samsung **Settings, General, Start Screen Options**: turn
-  **Autorun Last App** on and **Start with Smart Hub Home** off.
+  **Autorun Last App** on and **Start with Smart Hub Home** off. This only changes what you see
+  when the TV turns on. Samsung's Smart Hub most likely keeps running in the background either
+  way. We have not measured whether these settings save memory or make the TV faster.
 - The remote's Home button still opens Samsung's home. That cannot be changed by an app. To get
   back quickly, put opencream TV first in Samsung's apps row on the home screen: highlight it,
   press down (or hold OK), choose **Move** and move it to the far left. Then Home, then OK
@@ -62,4 +70,5 @@ If you give the agent your IPTV login, it passes through that AI provider and is
 | Install refused on an older TV | The TV is older than 2019 (Tizen 5.0). It is not supported. |
 | "Could not connect" in the app | Check server address, username and password with your provider. Several servers can be entered, separated by commas. |
 | A channel says the connection slot is taken (HTTP 460) | Your subscription allows one device at a time. Stop playback on the other device. |
+| Does it work on The Frame's Art Mode? | The app runs on The Frame like on any Samsung TV, but it cannot switch the TV into Art Mode. Samsung only offers that to other devices on the network (for example Home Assistant), not to apps on the TV. Use the remote's power button as usual. |
 | No sound on some channels | The channel uses an audio format this TV cannot play. Pick another audio track with Down during playback. |
